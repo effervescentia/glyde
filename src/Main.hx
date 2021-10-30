@@ -1,3 +1,5 @@
+import hxsl.Types.Matrix;
+
 var numberOfChunks = 64;
 var worldSize = 256;
 
@@ -21,17 +23,30 @@ class Main extends hxd.App {
 	}
 
 	override function update(dt:Float) {
-		if (hxd.Key.isDown(hxd.Key.UP))
-			model.y += 5 * dt;
+		var direc = model.getLocalDirection();
+		var pos = model.getRelPos(s3d).getPosition();
+
+		if (hxd.Key.isDown(hxd.Key.UP)) {
+			var move = direc.clone();
+			move.w = 5 * dt;
+
+			pos.add(move);
+
+			model.setPosition(move.x, pos.y, pos.z);
+		}
 
 		if (hxd.Key.isDown(hxd.Key.DOWN))
 			model.y -= 5 * dt;
 
-		if (hxd.Key.isDown(hxd.Key.RIGHT))
-			model.rotate(0, 0, 1.5 * dt);
+		if (hxd.Key.isDown(hxd.Key.RIGHT)) {
+			direc.transform(Matrix.R(0, 0, 1.5 * dt));
+			model.setDirection(direc);
+		}
 
-		if (hxd.Key.isDown(hxd.Key.LEFT))
-			model.rotate(0, 0, -1.5 * dt);
+		if (hxd.Key.isDown(hxd.Key.LEFT)) {
+			direc.transform(Matrix.R(0, 0, -1.5 * dt));
+			model.setDirection(direc);
+		}
 	}
 
 	static function main() {
