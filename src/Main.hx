@@ -1,65 +1,46 @@
+import actors.Character;
+
 var numberOfChunks = 64;
 var worldSize = 256;
 
 class Main extends hxd.App {
-	var model:h3d.scene.Object;
+	var actors:Array<actors.Actor> = new Array();
 	var debug:h2d.Text;
-	var debug2:h2d.Text;
 
 	override function init() {
 		s3d.lightSystem.ambientLight.set(0.4, 0.4, 0.4);
 
 		var cache = new h3d.prim.ModelCache();
 
-		model = cache.loadModel(hxd.Res.star);
-		s3d.addChild(model);
+		var character = new actors.Character("main player", cache);
+
+		actors.push(character);
+
+		for (actor in actors) {
+			actor.attach(s3d);
+		}
 
 		var dirLight = new h3d.scene.fwd.DirLight(new h3d.Vector(-1, 3, -10), s3d);
 		dirLight.enableSpecular = true;
 
 		new h3d.scene.CameraController(5, s3d).loadFromCamera();
 
+		character.follow(s3d);
+
 		var font = hxd.res.DefaultFont.get();
 
 		debug = new h2d.Text(font, s2d);
-		debug2 = new h2d.Text(font, s2d);
-		debug.x = debug.y = debug2.x = 5;
-		debug2.y = 35;
+		debug.x = debug.y = 5;
 
 		cache.dispose();
 	}
 
 	override function update(dt:Float) {
-		var direc = model.getLocalDirection();
-		var pos = model.getRelPos(model.parent).getPosition();
-
-		if (hxd.Key.isDown(hxd.Key.UP)) {
-			var move = direc.clone();
-			move.scale(2 * dt);
-
-			var res = pos.add(move);
-			model.setPosition(res.x, res.y, res.z);
+		for (actor in actors) {
+			actor.update(dt);
 		}
 
-		if (hxd.Key.isDown(hxd.Key.DOWN)) {
-			var move = direc.clone();
-			move.scale(-2 * dt);
-
-			var res = pos.add(move);
-			model.setPosition(res.x, res.y, res.z);
-		}
-
-		if (hxd.Key.isDown(hxd.Key.RIGHT)) {
-			direc.transform(h3d.Matrix.R(0, 0, 1.5 * dt));
-			model.setDirection(direc);
-		}
-
-		if (hxd.Key.isDown(hxd.Key.LEFT)) {
-			direc.transform(h3d.Matrix.R(0, 0, -1.5 * dt));
-			model.setDirection(direc);
-		}
-
-		debug.text = "Position: x=" + model.x + " y=" + model.y + " z=" + model.z;
+		debug.text = actors.map((actor) -> actor.toString()).join("\n");
 	}
 
 	static function main() {
