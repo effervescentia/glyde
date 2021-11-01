@@ -5,7 +5,7 @@ import h3d.col.Bounds;
 interface Actor {
 	public function attach(scene:h3d.scene.Scene):Void;
 
-	public function update(dt:Float):Void;
+	public function update(worldBounds:Bounds, dt:Float):Void;
 
 	public function collide(bounds:Bounds):Bool;
 
