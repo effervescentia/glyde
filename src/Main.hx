@@ -1,13 +1,14 @@
 import actors.Character;
 
-var numberOfChunks = 64;
-var worldSize = 256;
-
 class Main extends hxd.App {
+	var world:World;
 	var actors:Array<actors.Actor> = new Array();
 	var debug:h2d.Text;
 
 	override function init() {
+		world = new World(s3d);
+		world.populate();
+
 		s3d.lightSystem.ambientLight.set(0.4, 0.4, 0.4);
 
 		var cache = new h3d.prim.ModelCache();
@@ -23,8 +24,6 @@ class Main extends hxd.App {
 		var dirLight = new h3d.scene.fwd.DirLight(new h3d.Vector(-1, 3, -10), s3d);
 		dirLight.enableSpecular = true;
 
-		new h3d.scene.CameraController(5, s3d).loadFromCamera();
-
 		character.follow(s3d);
 
 		var font = hxd.res.DefaultFont.get();
@@ -38,9 +37,10 @@ class Main extends hxd.App {
 	override function update(dt:Float) {
 		for (actor in actors) {
 			actor.update(dt);
+			world.collidePowerup(actor);
 		}
 
-		debug.text = actors.map((actor) -> actor.toString()).join("\n");
+		debug.text = world.toString() + "\n" + actors.map((actor) -> actor.toString()).join("\n");
 	}
 
 	static function main() {

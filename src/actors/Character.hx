@@ -18,7 +18,8 @@ class Character implements Actor {
 		model = cache.loadModel(hxd.Res.kirby);
 		pov = new Object(model);
 
-		pov.setPosition(-10, 0, 10);
+		model.setPosition(0, 0, 0.04);
+		pov.setPosition(-5, 0, 5);
 	}
 
 	public function attach(scene:Scene) {
@@ -70,6 +71,10 @@ class Character implements Actor {
 			direc.transform(Matrix.R(0, 0, -1.5 * dt));
 			model.setDirection(direc);
 		}
+	}
+
+	public function collide(bounds:h3d.col.Bounds) {
+		return model.getBounds().collide(bounds);
 	}
 
 	public function toString() {
