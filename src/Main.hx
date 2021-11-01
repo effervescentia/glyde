@@ -1,10 +1,13 @@
-import h3d.col.Bounds;
+import core.Game;
+import core.World;
+import h2d.Text;
+import h3d.Vector;
+import h3d.scene.fwd.DirLight;
 
 class Main extends hxd.App {
 	private var game:Game;
 	private var world:World;
-	private var worldBounds:Bounds;
-	private var debug:h2d.Text;
+	private var debug:Text;
 
 	// methods
 
@@ -13,21 +16,20 @@ class Main extends hxd.App {
 
 		world = new World(s3d);
 		world.populate();
-		worldBounds = Bounds.fromValues(0, 0, 0, World.WORLD_SIZE, World.WORLD_SIZE, 15);
 
 		game = new Game(s3d);
 
-		var dirLight = new h3d.scene.fwd.DirLight(new h3d.Vector(-1, 3, -10), s3d);
+		var dirLight = new DirLight(new Vector(-1, 3, -10), s3d);
 		dirLight.enableSpecular = true;
 
 		var font = hxd.res.DefaultFont.get();
 
-		debug = new h2d.Text(font, s2d);
+		debug = new Text(font, s2d);
 		debug.x = debug.y = 5;
 	}
 
 	override function update(dt:Float) {
-		game.update(worldBounds, dt);
+		game.update(dt);
 
 		debug.text = game.toString();
 	}

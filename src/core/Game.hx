@@ -1,7 +1,8 @@
-import data.Abilities;
-import actors.Actor;
-import actors.Character;
-import actors.Powerup;
+package core;
+
+import act.Actor;
+import act.Character;
+import act.Powerup;
 import h3d.col.Bounds;
 import h3d.scene.Scene;
 
@@ -28,7 +29,6 @@ abstract ActorArray(Array<Actor>) from Array<Actor> to Array<Actor> {
 class Game {
 	private var characters:Array<Character> = new Array();
 	private var powerups:Array<Powerup> = new Array();
-	private var collision = false;
 
 	public function new(scene:Scene) {
 		var cache = new h3d.prim.ModelCache();
@@ -38,7 +38,7 @@ class Game {
 		characters.push(player1);
 
 		for (_ in 0...3000) {
-			powerups.push(new Powerup(cache, [Speed(0.1)]));
+			powerups.push(Std.random(2) == 0 ? Powerup.SpeedUp(cache) : Powerup.LiftUp(cache));
 		}
 
 		for (actor in getActors()) {
@@ -66,17 +66,14 @@ class Game {
 
 	// methods
 
-	public function update(worldBounds:Bounds, dt:Float) {
+	public function update(dt:Float) {
 		for (actor in getActors()) {
-			actor.update(worldBounds, dt);
+			actor.update(dt);
 		}
-
-		collision = false;
 
 		for (powerup in powerups) {
 			for (character in characters) {
 				if (!powerup.used && character.collide(powerup.getBounds())) {
-					collision = true;
 					powerup.apply(character);
 					powerups.remove(powerup);
 					return;
@@ -86,6 +83,6 @@ class Game {
 	}
 
 	public function toString() {
-		return "collision: " + collision + "\n" + characters.map((actor) -> actor.toString()).join("\n");
+		return characters.map((actor) -> actor.toString()).join("\n");
 	}
 }
