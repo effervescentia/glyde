@@ -1,9 +1,45 @@
+import actors.Actor;
 import actors.Character;
+import actors.Powerup;
+
+abstract ActorArray(Array<Actor>) from Array<Actor> to Array<Actor> {
+	inline function new(array:Array<Actor>) {
+		this = array;
+	}
+
+	@:from
+	static function fromCharacterArray(array:Array<Character>) {
+		return new ActorArray(Lambda.array(Lambda.map(array, function(character:Character):Actor {
+			return character;
+		})));
+	}
+
+	@:from
+	static function fromPowerupArray(array:Array<Powerup>) {
+		return new ActorArray(Lambda.array(Lambda.map(array, function(character:Powerup):Actor {
+			return character;
+		})));
+	}
+}
 
 class Main extends hxd.App {
-	var world:World;
-	var actors:Array<actors.Actor> = new Array();
-	var debug:h2d.Text;
+	private var world:World;
+	private var debug:h2d.Text;
+
+	private var characters:Array<Character> = new Array();
+	private var powerups:Array<Powerup> = new Array();
+
+	private function getActors() {
+		var characterActors:ActorArray = characters;
+		var powerupActors:ActorArray = powerups;
+
+		var actors = new Array<Actor>();
+
+		actors = actors.concat(characterActors);
+		actors = actors.concat(powerupActors);
+
+		return actors;
+	}
 
 	override function init() {
 		world = new World(s3d);
@@ -13,18 +49,22 @@ class Main extends hxd.App {
 
 		var cache = new h3d.prim.ModelCache();
 
-		var character = new actors.Character("main player", cache);
+		var player1 = new Character("main character", cache);
 
-		actors.push(character);
+		characters.push(player1);
 
-		for (actor in actors) {
+		for (_ in 1...1000) {
+			powerups.push(new Powerup(cache));
+		}
+
+		for (actor in getActors()) {
 			actor.attach(s3d);
 		}
 
 		var dirLight = new h3d.scene.fwd.DirLight(new h3d.Vector(-1, 3, -10), s3d);
 		dirLight.enableSpecular = true;
 
-		character.follow(s3d);
+		player1.follow(s3d);
 
 		var font = hxd.res.DefaultFont.get();
 
@@ -35,12 +75,21 @@ class Main extends hxd.App {
 	}
 
 	override function update(dt:Float) {
-		for (actor in actors) {
+		for (actor in getActors()) {
 			actor.update(dt);
-			world.collidePowerup(actor);
 		}
 
-		debug.text = world.toString() + "\n" + actors.map((actor) -> actor.toString()).join("\n");
+		var collision = false;
+
+		for (powerup in powerups) {
+			for (character in characters) {
+				if (character.collide(powerup.getBounds())) {
+					collision = true;
+				}
+			}
+		}
+
+		debug.text = "collision: " + collision + "\n" + characters.map((actor) -> actor.toString()).join("\n");
 	}
 
 	static function main() {

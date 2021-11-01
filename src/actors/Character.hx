@@ -1,9 +1,10 @@
 package actors;
 
+import hxd.Key;
+import h3d.Matrix;
+import h3d.prim.ModelCache;
 import h3d.scene.Object;
 import h3d.scene.Scene;
-import h3d.Matrix;
-import hxd.Key;
 
 class Character implements Actor {
 	private var model:Object;
@@ -12,15 +13,23 @@ class Character implements Actor {
 
 	public var name:String;
 
-	public function new(name:String, cache:h3d.prim.ModelCache) {
+	public function new(name:String, cache:ModelCache) {
 		this.name = name;
 
 		model = cache.loadModel(hxd.Res.kirby);
-		pov = new Object(model);
-
 		model.setPosition(0, 0, 0.04);
+
+		pov = new Object(model);
 		pov.setPosition(-5, 0, 5);
 	}
+
+	// getters
+
+	public function getBounds() {
+		return model.getBounds();
+	}
+
+	// methods
 
 	public function attach(scene:Scene) {
 		scene.addChild(model);
@@ -74,7 +83,7 @@ class Character implements Actor {
 	}
 
 	public function collide(bounds:h3d.col.Bounds) {
-		return model.getBounds().collide(bounds);
+		return getBounds().collide(bounds);
 	}
 
 	public function toString() {
