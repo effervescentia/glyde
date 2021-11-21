@@ -3,12 +3,9 @@ package act;
 import core.World;
 import data.Abilities;
 import h3d.Matrix;
-import h3d.col.Bounds;
 import h3d.prim.ModelCache;
-import h3d.scene.Object;
-import h3d.scene.Scene;
 
-class Powerup implements Actor {
+class Powerup extends Actor {
 	public static function SpeedUp(cache:ModelCache) {
 		return new Powerup(cache, hxd.Res.speed_up, [Speed(0.1)]);
 	}
@@ -18,7 +15,6 @@ class Powerup implements Actor {
 	}
 
 	private var mods:Array<Modifier>;
-	private var model:Object;
 
 	public var used = false;
 
@@ -30,26 +26,12 @@ class Powerup implements Actor {
 		model.setRotation(0, 0, hxd.Math.srand(Math.PI));
 	}
 
-	// getters
-
-	public function getBounds() {
-		return model.getBounds();
-	}
-
 	// methods
-
-	public function attach(scene:Scene) {
-		scene.addChild(model);
-	}
 
 	public function update(dt:Float) {
 		var direc = model.getLocalDirection();
 		direc.transform(Matrix.R(0, 0, 1.5 * dt));
 		model.setDirection(direc);
-	}
-
-	public function collide(bounds:Bounds) {
-		return getBounds().collide(bounds);
 	}
 
 	public function apply(character:Character) {
